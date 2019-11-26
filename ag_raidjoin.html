@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<html>
+<head>
+<title>Dawn of the Dragons - Armor Games Raidjoiner 1.1</title>
+
+<style type="text/css">
+html,body { color:white; background-color:#202020; height:100%;width:100%; margin:0;	overflow:hidden; }
+span { color:white; }
+#ctrl_mov { float:left; overflow:auto; }
+#game_div { border:0; width:1026px; height:761px; margin-left:auto; margin-right:auto; }
+#game_window {margin:0; background-color:#303020; overflow:hidden; width:1025px; height:690px; border:0; }
+</style>
+</head>
+<body align="center">
+
+
+<div>
+	<p>Paste game direct link in the box below.
+	This is the link which includes your auth token</p>
+	<input id="direct_link" type="text" size="80" />
+
+	<p>Paste all raid links into the box below.
+	Make sure each link is on its own line.</p>
+	<textarea id="raid_links" cols="80" rows="12"></textarea>
+
+	<p>Click the START button below to begin processing.</p>
+	<span>
+	<input onClick="_process_input()" type="button" value="START" />
+	<!-- <input onClick="" type="button" value="STOP" /> -->
+	<input onClick="_reset_input()" type="button" value="Reset raid link box" />
+	</span>
+	<p id="process_status">Status: idle</p>
+</div>
+
+
+<script type="text/javascript">
+//<![CDATA[
+	var LINK_DB = [];  //Contains 2-lists: [raid_id,hash] raw values
+	var DIRECT_GAME_LINK = "";
+	var CURRENT_LINK = 0;
+	
+	function $(x) { return document.getElementById(x); }
+	
+	function _get_query(link) { return link.split("?")[1]; }
+	
+	function _find_value(query,param_regex) {
+		var param = "";
+		var value = "";
+		for (item of query.split("&")) {
+			param = item.split("=")[0];
+			value = item.split("=")[1];
+			if (param.match(param_regex)) return value;
+		}
+		return "";
+	}
+
+	function _get_link_details(link) {
+		var query    = _get_query(link);
+		var raidid   = _find_value(link,/(ar_|ng_|)raid_id/gi);
+		var raidhash = _find_value(link,/(ar_|ng_|)hash/gi);
+		return [raidid,raidhash];
+	}
+	
+	function _process_input() {
+		var dirquery = _get_query($("direct_link").value);
+		var user_id = _find_value(dirquery,/user_id/gi);
+		var auth_token = _find_value(dirquery,/auth_token/gi);
+		var link_cur = 0;
+		var link_max = 0;
+		var successes = 0;
+		LINK_DB = [];  //Resets database
+		for (line of $("raid_links").value.split("\n")) {
+			item = _get_link_details(line);
+			if (!!item[0] && !!item[1]) {
+				LINK_DB.push(item);
+			}
+		}
+		link_max = LINK_DB.length;
+		
+		function _fmt_query(raidid,hash) {
+			var s = "";
+			s  = "https://dotd-web1.5thplanetgames.com/armor/raidjoin.php?";
+			s += "user_id="+user_id;
+			s += "&auth_token="+auth_token;
+			s += "&ar_action_type=raidhelp";
+			s += "&ar_raid_id="+raidid;
+			s += "&ar_hash="+hash;
+			return s;
+		}
+		
+		function _get_cur_raid_req() {
+			item = LINK_DB[link_cur];
+			return _fmt_query(item[0],item[1]);
+		}
+		
+		function _reset_input() {
+			$("raid_links").value = '';
+			return;
+		}
+		
+		function connloaded() {
+			var s = "";
+			if (this.status != 200) {
+				s = "Status: Server reply status "+this.status.toString()+" on request "+(link_cur+1).toString()+" of "+link_max.toString();
+				$("process_status").innerHTML = s;
+			} else {
+				s = "Status: Server reply OK on request "+(link_cur+1).toString()+" of "+link_max.toString();
+				$("process_status").innerHTML = s;
+			}
+			return;
+		}
+		
+		function connerror() {
+			var s = "";
+			s = "Status: Server reply status "+this.status.toString()+" on request "+(link_cur+1).toString()+" of "+link_max.toString();
+			//s = "Status: Connection failed for request "+(link_cur+1).toString()+" of "+link_max.toString();
+			$("process_status").innerHTML = s;
+			return;
+		}
+		
+		function connfinish() {
+			var s = "";
+			link_cur += 1;
+			if (link_cur == link_max) {
+				s = "Status: Completion.";
+				$("process_status").innerHTML = s;
+			} else {
+				conn.open("GET",_get_cur_raid_req());
+				conn.send();
+			}
+			return;
+		}
+		
+		
+		var conn = new XMLHttpRequest();
+		conn.addEventListener("load",connloaded);
+		conn.addEventListener("error",connerror);
+		conn.addEventListener("loadend",connfinish);
+		conn.open("GET",_get_cur_raid_req());
+		conn.send();
+		
+		
+		return;
+	}
+	
+//]]>
+</script>
+</body>
+</html>
+

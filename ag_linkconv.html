@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<html>
+<head>
+<title>Dawn of the Dragons - Newgrounds to Armor Games Raid Link Converter</title>
+
+<style type="text/css">
+html,body { color:white; background-color:#202020; height:100%;width:100%; margin:0;	overflow:hidden; }
+span { color:white; }
+#ctrl_mov { float:left; overflow:auto; }
+#game_div { border:0; width:1026px; height:761px; margin-left:auto; margin-right:auto; }
+#game_window {margin:0; background-color:#303020; overflow:hidden; width:1025px; height:690px; border:0; }
+</style>
+</head>
+<body align="center">
+
+
+<div>
+	<p>Paste one Newgrounds Raid Link.</p>
+	<textarea id="raid_links" cols="80" rows="4"></textarea>
+
+	<p>Click the START button below to begin processing.</p>
+	<span>
+	<input onClick="_process_input()" type="button" value="CONVERT" />
+	</span>
+	<p id="process_status">Status: idle</p>
+</div>
+
+
+<script type="text/javascript">
+//<![CDATA[
+	
+	function $(x) { return document.getElementById(x); }
+	
+	function _get_query(link) { return link.split("?")[1]; }
+	
+	function _find_value(query,param_regex) {
+		var param = "";
+		var value = "";
+		for (item of query.split("&")) {
+			param = item.split("=")[0];
+			value = item.split("=")[1];
+			if (param.match(param_regex)) return value;
+		}
+		return "";
+	}
+
+	function _get_link_details(link) {
+		var query    = _get_query(link);
+		var raidid   = _find_value(link,/(ar_|ng_|)raid_id/gi);
+		var raidhash = _find_value(link,/(ar_|ng_|)hash/gi);
+		return [raidid,raidhash];
+	}
+	
+	function _process_input() {
+		
+		var item = $("raid_links").value;
+		var id   = _find_value(item,/(ar_|ng_|)raid_id/gi);
+		var hash = _find_value(item,/(ar_|ng_|)hash/gi);
+		var diff = _find_value(item,/(ar_|ng_|)difficulty/gi);
+		var boss = _find_value(item,/(ar_|ng_|)raid_boss/gi);
+		var serv = _find_value(item,/(ar_|ng_|)serverid/gi);
+		var mess = _find_value(item,/(ar_|ng_|)message/gi);
+		
+		function _fmt_query() {
+			var s = "http://armorgames.com/dawn-of-the-dragons-game/13509";
+			s += "?ar_action_type=raidhelp"
+			s += "&ar_raid_id="+id;
+			s += "&ar_difficulty="+diff;
+			s += "&ar_raid_boss="+boss;
+			s += "&ar_hash="+hash;
+			s += "&ar_serverid="+serv;
+			s += "&ar_message="+mess;
+			return s;
+		}
+		
+		$('process_status').innerHTML = _fmt_query();
+		
+		return;
+	}
+	
+//]]>
+</script>
+</body>
+</html>
+

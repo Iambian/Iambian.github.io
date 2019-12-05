@@ -19,11 +19,13 @@ span { color:white; }
 	<p>Paste one Newgrounds Raid Link.</p>
 	<textarea id="raid_links" cols="80" rows="4"></textarea>
 
-	<p>Click the START button below to begin processing.</p>
+	<p>Click the START button below to convert NG link to AG link.</p>
 	<span>
 	<input onClick="_process_input()" type="button" value="CONVERT" />
+	<input onClick="_process_tocopy()" type="button" value="CONVERT and COPY TO CLIPBOARD" />
 	</span>
-	<p id="process_status">Status: idle</p>
+	<p>	<textarea id="process_status" cols="80" rows="4"></textarea> </p>
+	
 </div>
 
 
@@ -74,10 +76,18 @@ span { color:white; }
 			return s;
 		}
 		
-		$('process_status').innerHTML = _fmt_query();
+		$('process_status').value = _fmt_query();
 		
 		return;
 	}
+	function _process_tocopy() {
+		var t;
+		_process_input();
+		$('process_status').select();
+		document.execCommand("copy");
+	}
+	
+	
 	
 //]]>
 </script>

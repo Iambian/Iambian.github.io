@@ -42,12 +42,18 @@ span { color:white; }
 	
 	function $(x) { return document.getElementById(x); }
 	
-	function _get_query(link) { return link.split("?")[1]; }
+	function _get_query(link) {
+		var t;
+		t = link.split("?");
+		if (t.length<1) return t[0]; //So the script doesn't die if what you posted isn't a link
+		else            return t[1];
+	}
 	
 	function _find_value(query,param_regex) {
 		var param = "";
 		var value = "";
 		for (item of query.split("&")) {
+			if (item.indexOf("=") < 0) continue; //in case malformed p=v
 			param = item.split("=")[0];
 			value = item.split("=")[1];
 			if (param.match(param_regex)) return value;
@@ -69,6 +75,13 @@ span { color:white; }
 		var link_cur = 0;
 		var link_max = 0;
 		var successes = 0;
+		
+		if (!auth_token || !user_id) {
+			s = "Error: Cannot find user_id or auth_token in direct link. The game direct link starts with \"https://dotd-web1.5thplanetgames.com/armor/?user_id=\" and is found in the game page's source.";
+			$("process_status").innerHTML = s;
+			return;
+		}
+		
 		LINK_DB = [];  //Resets database
 		for (line of $("raid_links").value.split("\n")) {
 			item = _get_link_details(line);

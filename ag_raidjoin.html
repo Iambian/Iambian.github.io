@@ -41,10 +41,10 @@ a:visited { color:#FFC0FF; }
 	<p id="process_status">Status: idle</p>
 	<hr />
 	<p> A link will appear below this text once you push START and that there is
-	a valid direct game link being used. You can bookmark that link to save
-	your account details so you might not have to search for them again. I don't
-	know how long these details stay valid so you might need to search again and
-	paste again if nothing seems to work</p>
+	a valid direct game link being used. Click that link after processing is
+	finished to embed user_id and auth_token into this page's URL, which can then
+	be temporarily bookmarked or kept in the tab so a refresh won't destroy the
+	first input box.</p>
 	<p><a href="" id="bookmark_a"></a></p>
 </div>
 
@@ -159,7 +159,6 @@ a:visited { color:#FFC0FF; }
 			}
 			return;
 		}
-		file:///C:/Users/Xethyl/Desktop/MY_GITHUB/ag_raidjoin.html
 		
 		var conn = new XMLHttpRequest();
 		conn.addEventListener("load",connloaded);
@@ -169,7 +168,7 @@ a:visited { color:#FFC0FF; }
 		conn.send();
 		
 		if (!bm_user_id || !bm_auth_token) {
-			s = "DO NOT SHARE THIS LINK. Right-click this link and select the option to save it as a bookmark. Or copy it and place it someplace private."
+			s = "DO NOT SHARE THIS LINK. Click to save direct link for this session."
 			$("bookmark_a").innerHTML = s;
 			s  = window.location.toString();
 			s  = s.split("?")[0];

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<html>
+<head>
+<title>Something Fun</title>
+
+<style type="text/css">
+html,body { color:white; background-color:#202020; height:100%;width:100%; margin:0;	overflow:hidden; }
+span { color:white; }
+#ctrl_mov { float:left; overflow:auto; }
+#game_div { border:0; width:1026px; height:761px; margin-left:auto; margin-right:auto; }
+#game_window {margin:0; background-color:#303020; overflow:hidden; width:1025px; height:690px; border:0; }
+a:link { color:#C0C0FF; }
+a:active { color:#FFC0C0; }
+a:visited { color:#FFC0FF; }
+
+</style>
+</head>
+<body align="center">
+
+
+<div>
+<pre>
+from PIL import Image
+import sys,os
+def fun(filename):
+    img = Image.open(filename).convert("RGB")
+    w,h = img.size
+    binarr = bytearray()
+    insize,newsize,idx = (5,0,0)
+    for y in xrange(h):
+        for x in xrange(w):
+            r,g,b = img.getpixel((x,y))
+            by = (r&7)+((g&3)<<3)+((b&7)<<5)
+            if not y and x<4:   newsize += by<<(8*x)
+            else:   binarr.append(by)
+            if not y and x==4: insize = newsize+4
+            idx += 1
+            if idx >= insize: return binarr
+        if not y&127: print "Row " +str(y)+" of "+str(insize/w)
+    return binarr
+open("outputarchive.7z","wb+").write(fun("inputimage.png"))
+</pre>
+</div>
+</body>
+</html>
+
